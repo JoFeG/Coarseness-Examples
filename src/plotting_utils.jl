@@ -69,3 +69,25 @@ function plot_add_lines!(plt, S)
     
     return plt
 end
+
+function print_C_pyramid(C,label="",io="")
+    n = size(C)[1]
+    pad = n>9 ? 5 : 4
+    println(io,"\n"*label)
+    for i = 1:n
+        println(io,lpad("i=$i ",pad+1," "),"-"^((n+2)*pad))
+        for j = 1:n
+            println(io,lpad("j=$j ",pad+1," ")," "^((n+1)*pad),"□$i×$j")
+            for q = n-j+1:-1:1
+                print(io,lpad("q=$q ",2*pad," "))
+                for p = 1:n-i+1
+                    print(io,lpad(C[p,q,i,j], pad, " "))
+                end
+                println(io,"")
+            end
+            println(io," "^(2*pad),[lpad("p=$p",pad," ") for p = 1:n-i+1]...)
+        end
+        println(io,"")
+    end
+    println(io,lpad("end ",pad+1," "),"-"^((n+2)*pad))
+end
