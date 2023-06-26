@@ -14,12 +14,12 @@ function plot_rb_points(
     max_x, max_y = maximum(S, dims = 1)
     min_x, min_y = minimum(S, dims = 1)
     
-
+    range_x = max_x - min_x
+    range_y = max_y - min_y
     
-    max_x = maximum(S[:,1])
     plt = scatter(size=(500, 500), legend=:none, 
-                  xlims=(min_x-1, max_x+1),
-                  ylims=(min_y-1, max_y+1), 
+                  xlims=(min_x-.2range_x, max_x+.2range_x),
+                  ylims=(min_y-.2range_y, max_y+.2range_y), 
                   axis=0, framestyle=:box,
                   grid=0, color=:white)
     
@@ -44,6 +44,8 @@ function plot_rb_points(
     
     return plt
 end
+
+################################################################################################
 
 function plot_add_lines!(plt, S)
     function sorted2midpoints(sorted)
@@ -70,6 +72,62 @@ function plot_add_lines!(plt, S)
     return plt
 end
 
+################################################################################################
+
+function plot_guillotine_line!(plt,p,q,i,j,k=0)
+    k_max = 12
+    k = k + 1
+    if k < k_max
+        if argcuts[p,q,i,j] == 2
+            s = idxcuts[p,q,i,j]
+            plot!(
+                [midpoints_x[p+s], midpoints_x[p+s]],
+                [midpoints_y[q],   midpoints_y[q+j]], 
+                color = :black
+            	)
+            scatter!(
+                [midpoints_x[p+s]],
+                [.5midpoints_y[q]+.5midpoints_y[q+j]],
+                markersize = 6,
+                markerstrokewidth = 0,
+                color = :white,
+            )
+            annotate!(
+                midpoints_x[p+s],
+                .5midpoints_y[q]+.5midpoints_y[q+j],
+                text("$k",6,:black)
+            )
+            plot_guillotine_line!(plt,p,q,s,j,k)
+            plot_guillotine_line!(plt,p+s,q,i-s,j,k)
+        elseif argcuts[p,q,i,j] == 3
+            t = idxcuts[p,q,i,j]
+            plot!(
+                [midpoints_x[p],   midpoints_x[p+i]],
+                [midpoints_y[q+t], midpoints_y[q+t]], 
+                color = :black,
+            )
+            scatter!(
+                [.5midpoints_x[p]+.5midpoints_x[p+i]],
+                [midpoints_y[q+t]],
+                markersize = 6,
+                markerstrokewidth = 0,
+                color = :white,
+            )
+            annotate!(
+                .5midpoints_x[p]+.5midpoints_x[p+i],
+                midpoints_y[q+t],
+                text("$k",6,:black)
+            )
+            plot_guillotine_line!(plt,p,q,i,t,k)
+            plot_guillotine_line!(plt,p,q+t,i,j-t,k)
+        end
+    end
+end
+
+################################################################################################
+# utils for debugging
+################################################################################################
+
 function print_C_pyramid(C,label="",io="")
     n = size(C)[1]
     pad = n>9 ? 5 : 4
@@ -90,4 +148,43 @@ function print_C_pyramid(C,label="",io="")
         println(io,"")
     end
     println(io,lpad("end ",pad+1," "),"-"^((n+2)*pad))
+end
+
+################################################################################################
+
+function print_S_info(S,p,q,i,j)
+    sortperm_x = sortperm(S[:, 1])
+    sorted_x = S[sortperm_x, 1]
+    midpoints_x = sorted2midpoints(sorted_x)
+
+    sortperm_y = sortperm(S[:, 2])
+    sorted_y = S[sortperm_y, 2]
+    midpoints_y = sorted2midpoints(sorted_y)
+    
+    M = Matrix{Any}(undef,n,4); M[:,1] = 1:n; M[:,2:3]= round.(S,digits=2); foo(x) = x==1 ? 'r' : 'b'; M[:,4] = foo.(w) 
+    display(M)
+
+    println("\np = $p, q = $q, i = $i, j = $j\n--------------------------")
+    print("                      "); for i=1:n+1 print(i,"  ") end; print("  midpoint index\n")
+    println("sortperm_x          = $sortperm_x")
+    println("sortperm_x[p:p+i-1] = $(sortperm_x[p:p+i-1])\n")
+    print("                      "); for i=1:n+1 print(i,"  ") end; print("  midpoint index\n")
+    println("sortperm_y          = $sortperm_y")
+    println("sortperm_y[q:q+j-1] = $(sortperm_y[q:q+j-1])\n")
+
+
+    int = intersect(sortperm_x[p:p+i-1],sortperm_y[q:q+j-1])
+    println("intersection = $int\n")
+
+    print("     "); for i=1:n print((w[i]==-1 ? " " : ""),i,"  ") end; print("  point index\n")
+    println("w = $w\n" )
+    println("Disc_pqij  = abs(sum(w[intersection])) = $(abs(sum(w[int])))")
+    println("Count_pqij = length(intersection)      = $(length(int))")
+
+    plot_rb_points(S, w)
+    plot_add_lines!(plt, S)
+    xx = [midpoints_x[p], midpoints_x[p], midpoints_x[p+i], midpoints_x[p+i]]
+    yy = [midpoints_y[q], midpoints_y[q+j], midpoints_y[q+j], midpoints_y[q]]
+    plot!(Shape(xx,yy), color=:gray, alpha = .2)
+    
 end
