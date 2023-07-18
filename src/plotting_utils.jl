@@ -4,7 +4,8 @@ using LazySets
 function plot_rb_points(
         S::Matrix{<:Real}, 
         w::Vector{<:Integer}, 
-        Π::Vector{<:Integer}=[0]
+        Π::Vector{<:Integer}=[0],
+        ann_disc = false
     )
     
     S = Float64.(S)
@@ -20,11 +21,14 @@ function plot_rb_points(
     plt = scatter(size=(500, 500), legend=:none, 
                   xlims=(min_x-.2range_x, max_x+.2range_x),
                   ylims=(min_y-.2range_y, max_y+.2range_y), 
-                  axis=0, framestyle=:box,
-                  grid=0, color=:white)
+                  axis=0, 
+                  framestyle=:none,
+                  grid=0,
+                  color=:white)
     
-    scatter!(plt, red_points[:, 1], red_points[:, 2], color=:red)
-    scatter!(plt, blue_points[:, 1], blue_points[:, 2], color=:blue)
+    MS = 6
+    scatter!(plt, red_points[:, 1], red_points[:, 2], color=:red, markersize = MS)
+    scatter!(plt, blue_points[:, 1], blue_points[:, 2], color=:blue, markersize = MS)
     
     
     
@@ -36,10 +40,12 @@ function plot_rb_points(
             j_hull = convex_hull(j_set)
             plot!(VPolygon(j_hull), color=:gray, alpha=0.2)
         end
-        SΠ_disc = [abs(sum((Π.==j) .* (w.==1)) - sum((Π.==j) .* (w.==-1))) for j=1:k]
-        
-        disc = minimum(SΠ_disc)
-        annotate!((.25, .9), text("Discrepancy: min $SΠ_disc = $disc", 8))
+        if ann_disc
+            SΠ_disc = [abs(sum((Π.==j) .* (w.==1)) - sum((Π.==j) .* (w.==-1))) for j=1:k]
+
+            disc = minimum(SΠ_disc)
+            annotate!((.25, .9), text("Discrepancy: min $SΠ_disc = $disc", 8))
+        end
     end
     
     return plt
@@ -181,10 +187,10 @@ function print_S_info(S,p,q,i,j)
     println("Disc_pqij  = abs(sum(w[intersection])) = $(abs(sum(w[int])))")
     println("Count_pqij = length(intersection)      = $(length(int))")
 
-    plot_rb_points(S, w)
+    plt = plot_rb_points(S, w)
     plot_add_lines!(plt, S)
     xx = [midpoints_x[p], midpoints_x[p], midpoints_x[p+i], midpoints_x[p+i]]
     yy = [midpoints_y[q], midpoints_y[q+j], midpoints_y[q+j], midpoints_y[q]]
     plot!(Shape(xx,yy), color=:gray, alpha = .2)
-    
+    return plt
 end
