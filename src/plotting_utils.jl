@@ -57,7 +57,7 @@ function plot_add_lines!(plt, S)
     function sorted2midpoints(sorted)
         n = length(sorted)
         midpoints = zeros(n + 1)
-        Δ = (sorted[1] + sorted[n])/n
+        Δ = (sorted[1] + sorted[n])/(n+1)
         midpoints[1] = sorted[1] - Δ
         midpoints[n+1] = sorted[n] + Δ
         midpoints[2:n] = 0.5(sorted[2:n] + sorted[1:n-1])
@@ -66,11 +66,11 @@ function plot_add_lines!(plt, S)
     
     sortperm_x = sortperm(S[:, 1])
     sorted_x = S[sortperm_x, 1]
-    midpoints_x = sorted2midpoints(sorted_x)
+    midpoints_x = sorted2midpoints(unique(sorted_x))
 
     sortperm_y = sortperm(S[:, 2])
     sorted_y = S[sortperm_y, 2]
-    midpoints_y = sorted2midpoints(sorted_y)
+    midpoints_y = sorted2midpoints(unique(sorted_y))
     
     vline!(midpoints_x, color=:gray, alpha = .3)
     hline!(midpoints_y, color=:gray, alpha = .3)
