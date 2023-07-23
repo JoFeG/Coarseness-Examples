@@ -4,8 +4,9 @@ using LazySets
 function plot_rb_points(
         S::Matrix{<:Real}, 
         w::Vector{<:Integer}, 
-        Π::Vector{<:Integer}=[0],
-        ann_disc = false
+        Π::Vector{<:Integer}=[0];
+        ann_disc = false,
+        fig_size = (500, 500)
     )
     
     S = Float64.(S)
@@ -18,7 +19,7 @@ function plot_rb_points(
     range_x = max_x - min_x
     range_y = max_y - min_y
     
-    plt = scatter(size=(500, 500), legend=:none, 
+    plt = scatter(size=fig_size, legend=:none, 
                   xlims=(min_x-.2range_x, max_x+.2range_x),
                   ylims=(min_y-.2range_y, max_y+.2range_y), 
                   axis=0, 
@@ -97,6 +98,7 @@ function plot_guillotine_line!(plt,p,q,i,j,k=0)
                 markersize = 6,
                 markerstrokewidth = 0,
                 color = :white,
+                alpha = .6
             )
             annotate!(
                 midpoints_x[p+s],
@@ -110,7 +112,7 @@ function plot_guillotine_line!(plt,p,q,i,j,k=0)
             plot!(
                 [midpoints_x[p],   midpoints_x[p+i]],
                 [midpoints_y[q+t], midpoints_y[q+t]], 
-                color = :black,
+                color = :black
             )
             scatter!(
                 [.5midpoints_x[p]+.5midpoints_x[p+i]],
@@ -118,6 +120,7 @@ function plot_guillotine_line!(plt,p,q,i,j,k=0)
                 markersize = 6,
                 markerstrokewidth = 0,
                 color = :white,
+                alpha = .6
             )
             annotate!(
                 .5midpoints_x[p]+.5midpoints_x[p+i],
