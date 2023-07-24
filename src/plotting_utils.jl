@@ -83,6 +83,10 @@ end
 
 function plot_guillotine_line!(plt,p,q,i,j,k=0)
     k_max = 12
+    try 
+    rec_k[1] = max(rec_k[1],k)
+    catch
+    end
     k = k + 1
     if k < k_max
         if argcuts[p,q,i,j] == 2

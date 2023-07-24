@@ -15,6 +15,8 @@ function coarseness_g(
         report=""::String
     )
     
+    n = length(w)
+    
     # Utils ##################################################################################
     sortperm_x = sortperm(S[:, 1])
     sorted_x = S[sortperm_x, 1]

@@ -39,6 +39,7 @@ end
 
 
 function coarseness_bf(S::Matrix{<:Real}, w::Vector{<:Integer})
+    n = length(w)
     c = 1
     Π_opt = Array{Integer,2}(undef,n,0)
 
