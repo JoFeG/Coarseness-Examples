@@ -71,6 +71,7 @@ function coarseness_g(
                             # vertical cut
                             if i > 1
                                 v_cuts = [[C[p,q,s,j], C[p+s,q,i-s,j]][k] for s=1:i-1, k=1:2]
+                                # ESTO EVITA LAS PARTICIONES CON CAJAS (VERTICALES) VACIAS 
                                 for s=1:i-1
                                     if v_cuts[s,1]==inf || v_cuts[s,2]==inf
                                         v_cuts[s,:] = [-1, -1]
